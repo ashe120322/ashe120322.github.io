@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Page Example</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            text-align: center;
+            background-color: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+        }
+
+        h1, h2 {
+            font-family: 'Georgia', serif;
+            color: #333;
+        }
+
+        .btn-primary {
+            background-color: blue;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: darkblue;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 15px;
+            text-decoration: none;
+            font-size: 14px;
+            color: blue;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .form-group {
+            text-align: left;
+        }
+
+        .form-control {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            margin-bottom: 5px;
+        }
+
+        .login-container {
+            padding: 20px;
+        }
+
+        .btn-sm {
+            padding: 10px 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="homePage" class="container">
+        <h1>Welcome to Our Website!</h1>
+        <p>Click the button below to go to the form page.</p>
+        <button class="btn btn-primary" onclick="showForm()">Go to Form</button>
+    </div>
+
+    <div id="formPage" class="container" style="display: none;">
+        <h2>Contact Person</h2>
+        <form id="contactForm">
+            <!-- Name Input -->
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" class="form-control" id="name" placeholder="Enter your name" required>
+            </div>
+
+            <!-- Email Input -->
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" class="form-control" id="email" placeholder="Enter your email" required>
+            </div>
+
+            <!-- Birthday Input -->
+            <div class="form-group">
+                <label for="birthday">Birthday</label>
+                <div class="row">
+                    <div class="col-sm-4">
+                        <select id="birthMonth" class="form-control" required>
+                            <option value="">Month</option>
+                            <option value="January">January</option>
+                            <option value="February">February</option>
+                            <option value="March">March</option>
+                            <option value="April">April</option>
+                            <option value="May">May</option>
+                            <option value="June">June</option>
+                            <option value="July">July</option>
+                            <option value="August">August</option>
+                            <option value="September">September</option>
+                            <option value="October">October</option>
+                            <option value="November">November</option>
+                            <option value="December">December</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-4">
+                        <select id="birthDay" class="form-control" required>
+                            <option value="">Day</option>
+                            <!-- Populate day options (1 to 31) -->
+                            <script>
+                                for (let i = 1; i <= 31; i++) {
+                                    document.write(`<option value="${i}">${i}</option>`);
+                                }
+                            </script>
+                        </select>
+                    </div>
+                    <div class="col-sm-4">
+                        <select id="birthYear" class="form-control" required>
+                            <option value="">Year</option>
+                            <!-- Populate year options (1900 to current year) -->
+                            <script>
+                                let currentYear = new Date().getFullYear();
+                                for (let i = currentYear; i >= 1900; i--) {
+                                    document.write(`<option value="${i}">${i}</option>`);
+                                }
+                            </script>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-primary btn-sm">Submit</button>
+        </form>
+
+        <!-- Back to Home Link -->
+        <a href="#" class="back-link" onclick="showHome()">Back to Home</a>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/3.7.4/firebase.js"></script>
+    <script type="module">
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBwbaZ33izhBD47moCliFMXjIXwK--wU1Q",
+            authDomain: "ashe-5aedb.firebaseapp.com",
+            databaseURL: "https://ashe-5aedb.firebaseio.com",
+            projectId: "ashe-5aedb",
+            storageBucket: "ashe-5aedb.appspot.com",
+            messagingSenderId: "276138070932",
+            appId: "1:276138070932:web:c510e3e953c02e171c7581",
+            measurementId: "G-LWRQ5LFJZ4"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        // Reference to the database
+        let messagesRef = firebase.database().ref('Collected data');
+
+        // Function to show the form page
+        function showForm() {
+            document.getElementById('homePage').style.display = 'none';
+            document.getElementById('formPage').style.display = 'block';
+        }
+
+        // Function to show the home page
+        function showHome() {
+            document.getElementById('homePage').style.display = 'block';
+            document.getElementById('formPage').style.display = 'none';
+        }
+
+        // Event listener for form submission
+        document.getElementById('contactForm').addEventListener('submit', submitForm);
+
+        function submitForm(e) {
+            e.preventDefault();
+
+            let name = getInputVal('name');
+            let email = getInputVal('email');
+            let birthMonth = getInputVal('birthMonth');
+            let birthDay = getInputVal('birthDay');
+            let birthYear = getInputVal('birthYear');
+
+            let birthday = `${birthMonth} ${birthDay}, ${birthYear}`;
+
+            saveMessage(name, email, birthday);
+            document.getElementById('contactForm').reset();
+        }
+
+        function getInputVal(id) {
+            return document.getElementById(id).value;
+        }
+
+        function saveMessage(name, email, birthday) {
+            let newMessageRef = messagesRef.push();
+            newMessageRef.set({
+                name: name,
+                email: email,
+                birthday: birthday
+            });
+        }
+    </script>
+</body>
+
+</html>
